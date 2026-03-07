@@ -133,7 +133,7 @@ async def trigger_scrape(
     keywords: str,
     location: str = "India",
     job_id: Optional[int] = None,
-    background_tasks: BackgroundTasks = None,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
     """Trigger a scraping job for a given source."""
@@ -180,7 +180,9 @@ def scraping_history(db: Session = Depends(get_db)):
             "location": j.location, "status": j.status,
             "profiles_found": j.profiles_found,
             "created_at": j.created_at.isoformat(),
+            "started_at": j.started_at.isoformat() if j.started_at else None,
             "completed_at": j.completed_at.isoformat() if j.completed_at else None,
+            "error_message": j.error_message,
         }
         for j in jobs
     ]
@@ -189,7 +191,7 @@ def scraping_history(db: Session = Depends(get_db)):
 @router.post("/seed-demo")
 async def seed_demo_data(
     count: int = 100,
-    background_tasks: BackgroundTasks = None,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
     """Seed database with realistic Indian candidate profiles for demo."""

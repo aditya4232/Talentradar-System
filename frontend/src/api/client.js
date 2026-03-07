@@ -44,6 +44,7 @@ export const api = {
     move: (entryId, stage, notes) => request('PUT', `/pipeline/move/${entryId}`, undefined, { stage, notes }),
     remove: (entryId) => request('DELETE', `/pipeline/${entryId}`),
     candidatePipelines: (candidateId) => request('GET', `/pipeline/candidate/${candidateId}`),
+    updateNotes: (entryId, notes) => request('PUT', `/pipeline/${entryId}/notes`, undefined, { notes }),
   },
   // Outreach
   outreach: {
