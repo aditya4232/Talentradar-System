@@ -6,74 +6,49 @@ from ..database import SessionLocal
 from ..models import Candidate
 from .llm_parser import extract_candidates_from_text, compute_talent_score
 from .httpx_scraper import httpx_scrape
-from .job_api_scraper import fetch_all_apis, fetch_remotive, fetch_himalayas
+from .job_api_scraper import fetch_all_apis
 from .indian_job_scrapers import fetch_all_indian_sources
 
 # PROXY LIST - ADD YOURS HERE (Example: "http://user:pass@host:port")
 PROXIES = [] 
 
-# Search queries to rotate through - INDIA FOCUSED
+# Search queries - FOCUSED ON DATA ENGINEER & AI ENGINEER IN HYDERABAD
 SEARCH_QUERIES = [
-    # Programming Languages
-    "python developer india",
-    "java developer india",
-    "javascript developer india",
-    "react developer india",
-    "node.js developer india",
-    "golang developer india",
-    "ruby developer india",
-    "php developer india",
+    # PRIMARY TARGET: Data Engineer & AI Engineer variations
+    "data engineer hyderabad",
+    "ai engineer hyderabad",
+    "data engineer telangana",
+    "ai engineer telangana",
+    "machine learning engineer hyderabad",
+    "data scientist hyderabad",
+    "mlops engineer hyderabad",
+    "big data engineer hyderabad",
+    "analytics engineer hyderabad",
+    "artificial intelligence engineer hyderabad",
     
-    # Full Stack & Specialized
-    "full stack developer india",
-    "fullstack engineer india",
-    "MERN stack developer india",
-    "MEAN stack developer india",
-    "frontend developer india",
-    "backend developer india",
+    # Generic variations (for remote jobs)
+    "data engineer",
+    "ai engineer",
+    "machine learning engineer",
+    "data scientist",
+    "mlops engineer",
+    "ml engineer",
+    "deep learning engineer",
+    "ai ml engineer",
+    "data analytics engineer",
+    "big data developer",
     
-    # DevOps & Cloud
-    "devops engineer india",
-    "site reliability engineer india",
-    "cloud engineer india",
-    "aws engineer india",
-    "azure engineer india",
-    "kubernetes engineer india",
-    "docker developer india",
-    
-    # Data & AI/ML
-    "data scientist india",
-    "machine learning engineer india",
-    "ai engineer india",
-    "data engineer india",
-    "data analyst india",
-    "business analyst india",
-    
-    # Mobile & Other
-    "android developer india",
-    "ios developer india",
-    "react native developer india",
-    "flutter developer india",
-    "mobile app developer india",
-    "qa engineer india",
-    "software tester india",
-    
-    # Freshers & Experience Levels
-    "fresher software developer india",
-    "junior developer india",
-    "senior developer india",
-    "tech lead india",
-    
-    # Cities (for better targeting)
-    "developer bangalore",
-    "developer mumbai",
-    "developer pune",
-    "developer hyderabad",
-    "developer delhi",
-    "developer noida",
-    "developer chennai",
-    "remote developer india",
-    "work from home india",
+    # Related skills/stacks for comprehensive coverage
+    "python data engineer",
+    "spark engineer",
+    "etl developer",
+    "aws data engineer",
+    "azure data engineer",
+    "nlp engineer",
+    "computer vision engineer",
+    "pytorch engineer",
+    "tensorflow engineer",
+    "data pipeline engineer",
 ]
 
 class ScrapingManager:

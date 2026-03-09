@@ -33,11 +33,25 @@ INDIAN_LOCATIONS = {
 
 
 def _is_india_location(location: str) -> bool:
-    """Check if location is in India."""
+    """Check if location is in India (prioritizing Hyderabad) or allows remote from India."""
     if not location:
-        return False
+        return True  # Accept if no location specified
     loc_lower = location.lower()
-    return any(indian_loc in loc_lower for indian_loc in INDIAN_LOCATIONS)
+    
+    # Prioritize Hyderabad - will show first in results
+    if "hyderabad" in loc_lower or "telangana" in loc_lower:
+        return True
+    
+    # Accept other India locations
+    if any(indian_loc in loc_lower for indian_loc in INDIAN_LOCATIONS):
+        return True
+    
+    # Accept remote/worldwide jobs (Indians can apply)
+    remote_keywords = ["remote", "anywhere", "worldwide", "global", "wfh", "work from home", "distributed"]
+    if any(keyword in loc_lower for keyword in remote_keywords):
+        return True
+    
+    return False
 
 
 async def _fetch_json(url: str, params: dict | None = None) -> dict | list | None:
@@ -74,8 +88,8 @@ async def fetch_remotive(query: str = "developer", limit: int = 50) -> list[dict
     for j in data["jobs"]:
         location = _clean(j.get("candidate_required_location", "Remote"))
         
-        # ✅ INDIA FILTER: Only accept India locations or "Anywhere"/"Worldwide"
-        if not (_is_india_location(location) or "anywhere" in location.lower() or "worldwide" in location.lower()):
+        # ✅ INDIA FILTER: Only accept India locations or remote/worldwide jobs
+        if not _is_india_location(location):
             continue
         
         # Extract REAL job metadata from Remotive API
@@ -174,11 +188,12 @@ async def fetch_himalayas(query: str = "developer", limit: int = 50) -> list[dic
         location_restrictions = j.get("locationRestrictions", [])
         location_str = ", ".join(location_restrictions) if location_restrictions else "Remote"
         
-        # ✅ INDIA FILTER: Only accept India locations or remote worldwide
-        if location_restrictions and not any(_is_india_location(loc) for loc in location_restrictions):
-            # Skip if location is specified but not India
-            if not ("worldwide" in location_str.lower() or "anywhere" in location_str.lower()):
+        # ✅ INDIA FILTER: Check if job accepts India candidates or is remote
+        if location_restrictions:
+            # If restrictions exist, check if India is allowed
+            if not any(_is_india_location(loc) for loc in location_restrictions):
                 continue
+        # If no restrictions, accept (remote worldwide)
         
         categories = j.get("categories", [])
         # Extract REAL job metadata from Himalayas API
@@ -350,7 +365,11 @@ async def fetch_jsearch_india(query: str = "developer", limit: int = 50) -> list
     
     results = []
     for j in data["data"][:limit]:
-        location = _clean(j.get("job_city", "") + ", " + j.get("job_state", "") + ", " + j.get("job_country", ""))
+        # Fix: Handle None values in location fields
+        city = j.get("job_city") or ""
+        state = j.get("job_state") or ""
+        country = j.get("job_country") or ""
+        location = _clean(f"{city}, {state}, {country}")
         
         # ✅ INDIA FILTER
         if not _is_india_location(location):
@@ -398,16 +417,17 @@ async def fetch_wellfound_india(query: str = "developer", limit: int = 30) -> li
 
 
 async def fetch_all_apis(query: str = "developer") -> list[dict]:
-    """Fetch from all available APIs concurrently. INDIA FILTER ACTIVE. Returns combined list with REAL verified data."""
+    """Fetch from PREMIUM APIs only (Adzuna, JSearch). HYDERABAD PRIORITIZED. Returns combined list with REAL verified data."""
     print(f"\n[JobAPI] ═══════════════════════════════════════════════════════")
-    print(f"[JobAPI] FETCHING REAL INDIA JOBS: query='{query}' at {datetime.utcnow().isoformat()}")
-    print(f"[JobAPI] Sources: Remotive, Himalayas, Adzuna IN, JSearch (Indeed/LinkedIn)")
-    print(f"[JobAPI] LOCATION FILTER: India only (all candidates/jobs in India)")
+    print(f"[JobAPI] FETCHING PREMIUM INDIA JOBS: query='{query}' at {datetime.utcnow().isoformat()}")
+    print(f"[JobAPI] Sources: Adzuna (Naukri/Monster/Indeed), JSearch (LinkedIn/Glassdoor)")
+    print(f"[JobAPI] LOCATION: Hyderabad prioritized + India (remote accepted)")
+    print(f"[JobAPI] NOTE: Remotive & Himalayas DISABLED (low quality candidates)")
     print(f"[JobAPI] ═══════════════════════════════════════════════════════\n")
     
+    # REMOVED: fetch_remotive and fetch_himalayas (low quality)
+    # NOW: Only premium API sources for best candidates
     tasks = [
-        fetch_remotive(query, limit=50),
-        fetch_himalayas(query, limit=50),
         fetch_adzuna_india(query, limit=50),
         fetch_jsearch_india(query, limit=50),
     ]
