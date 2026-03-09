@@ -1,68 +1,32 @@
-"""
-TalentRadar AI Platform - FastAPI Main Application
-"""
-
-import logging
-import os
-from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from .database import engine, Base
+from .api import endpoints, scraper_api
 
-from app.database import create_tables
-from app.config import settings
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-logger = logging.getLogger(__name__)
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("Starting TalentRadar AI Platform...")
-    os.makedirs("data", exist_ok=True)
-    create_tables()
-    logger.info("Database tables ready.")
-    yield
-    logger.info("Shutting down TalentRadar AI Platform.")
-
+# Create tables mapping models
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="TalentRadar AI Platform",
-    description="Zero-cost AI-native Recruitment OS for Indian hiring",
+    title="TalentRadar AI MVP",
+    description="The World's First Zero-Cost, Open-Source, AI-Native Candidate Intelligence",
     version="1.0.0",
-    lifespan=lifespan,
 )
 
+# CORS Policy
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:5173", "http://localhost:3000", "http://localhost:4173"],
+    allow_origins=["*"],  # Allows all origins for MVP
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
-# Register routers
-from app.api import jobs, candidates, pipeline, outreach, analytics, scrape  # noqa
-
-app.include_router(jobs.router,       prefix="/api/jobs",       tags=["Jobs"])
-app.include_router(candidates.router, prefix="/api/candidates", tags=["Candidates"])
-app.include_router(pipeline.router,   prefix="/api/pipeline",   tags=["Pipeline"])
-app.include_router(outreach.router,   prefix="/api/outreach",   tags=["Outreach"])
-app.include_router(analytics.router,  prefix="/api/analytics",  tags=["Analytics"])
-app.include_router(scrape.router,     prefix="/api/scrape",     tags=["Scraping"])
-
+app.include_router(endpoints.router, prefix="/api/v1")
+app.include_router(scraper_api.router, prefix="/api/v1/scraper")
 
 @app.get("/")
-async def root():
-    return {
-        "name": "TalentRadar AI Platform",
-        "version": "1.0.0",
-        "status": "running",
-        "docs": "/docs",
-    }
-
-
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
+def read_root():
+    return {"message": "Welcome to TalentRadar AI API"}

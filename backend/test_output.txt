@@ -1,0 +1,37 @@
+Testing Scraper on Naukri...
+
+============================================================
+[Scraper] Target URL: https://www.naukri.com/it-jobs?k=react
+============================================================
+[Scraper] Navigating to URL...
+[Scraper] Scrolling to load content...
+[Scraper] Extracted 10797 chars from targeted selectors
+[Scraper] Debug Text Sample: UI React - Front end Developer
+Ltimindtree
+3.6
+26090 Reviews
+6-10 Yrs
+10-19 Lacs PA
+Hybrid - Hyderabad
+Role & responsibilities Frontend Skills JavaScript HTML5 Bootstrap CSS SASS jQuery RxJ...
+React.JsFrontend DevelopmentUI DevelopmentHTMLCss And JavascriptCSSUIFront end
+5 days ago
+Save
+---
+UI React - Front end Developer
+Ltimindtree
+3.6
+26090 Reviews
+6-10 Yrs
+10-19 Lacs PA
+Hybrid - Hyderabad
+Role & responsibilities Frontend Skills JavaScript HTML5 Bootstrap CSS SASS jQuery RxJ...
+React.JsFronten...
+[Scraper] Total extraction: 13845 chars. Sending to AI for parsing...
+[LLM Parser] JSON decode error: Unterminated string starting at: line 240 column 20 (char 10698)
+[Scraper] Running deterministic Naukri parser boost...
+[Scraper] AI + Deterministic extracted 26 candidates
+[Scraper] [ERROR] DB error: '>' not supported between instances of 'str' and 'int'
+Scrape function returned: 0
+
+Total Candidates in DB: 0

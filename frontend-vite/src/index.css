@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 96%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    /* LinkedIn Blue - Professional Base */
+    --primary: 210 100% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 10% 94%;
+    --secondary-foreground: 220 20% 10%;
+
+    --muted: 210 20% 90%;
+    --muted-foreground: 220 20% 40%;
+
+    /* Naukri Red - Strategic Accents */
+    --accent: 354 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 210 20% 86%;
+    --input: 210 20% 86%;
+    --ring: 210 90% 40%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 15% 40%;
+    --sidebar-primary: 210 100% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 98%;
+    --sidebar-accent-foreground: 210 100% 35%;
+    --sidebar-border: 210 15% 90%;
+    --sidebar-ring: 210 100% 35%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(210, 100%, 35%), hsl(354, 70%, 50%));
+    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(210, 20% 99%));
+    --shadow-glow: 0 0 20px hsl(210 100% 35% / 0.1);
+    --shadow-card: 0 2px 8px hsl(220 20% 10% / 0.04), 0 1px 2px hsl(220 20% 10% / 0.02);
+
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+
+  code, pre {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card border border-border rounded-lg;
+    box-shadow: var(--shadow-card);
+  }
+
+  .glow-border {
+    @apply border border-primary/30;
+    box-shadow: var(--shadow-glow);
+  }
+
+  .score-high {
+    @apply text-accent-foreground;
+  }
+
+  .score-medium {
+    color: hsl(var(--warning));
+  }
+
+  .score-low {
+    color: hsl(var(--destructive));
+  }
+
+  .stat-card {
+    @apply glass-card p-5 transition-all duration-200 hover:border-primary/30;
+  }
+
+  .pulse-dot {
+    @apply w-2 h-2 rounded-full bg-primary animate-pulse;
+  }
+}
