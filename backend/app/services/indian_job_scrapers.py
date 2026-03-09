@@ -22,6 +22,24 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import json
 
+# Realistic browser headers to bypass anti-scraping
+BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Windows"',
+    "DNT": "1",
+    "Cache-Control": "max-age=0"
+}
+
 
 def _clean(val: Optional[str]) -> str:
     """Strip HTML tags and whitespace."""
@@ -83,15 +101,16 @@ async def scrape_naukri(query: str = "python developer", location: str = "india"
     }
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json",
+        **BROWSER_HEADERS,  # Include all browser headers
+        "Accept": "application/json,text/html,*/*",  # Accept JSON primarily
         "Referer": "https://www.naukri.com/",
+        "Origin": "https://www.naukri.com",
         "appid": "109",
         "systemid": "Naukri"
     }
     
     try:
-        async with httpx.AsyncClient(timeout=30.0, headers=headers, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=30.0, headers=headers, follow_redirects=True, verify=False) as client:
             response = await client.get(url, params=params)
             
             if response.status_code != 200:
@@ -169,12 +188,13 @@ async def scrape_foundit(query: str = "developer", location: str = "india", limi
     url = f"https://www.foundit.in/srp/results?query={search_query}&locations={location}"
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        **BROWSER_HEADERS,
+        "Referer": "https://www.foundit.in/",
+        "Origin": "https://www.foundit.in"
     }
     
     try:
-        async with httpx.AsyncClient(timeout=30.0, headers=headers, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=30.0, headers=headers, follow_redirects=True, verify=False) as client:
             response = await client.get(url)
             
             if response.status_code != 200:
@@ -253,12 +273,13 @@ async def scrape_instahyre(query: str = "python", limit: int = 20) -> List[Dict]
     }
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json",
+        **BROWSER_HEADERS,
+        "Accept": "application/json,*/*",
+        "Referer": "https://www.instahyre.com/"
     }
     
     try:
-        async with httpx.AsyncClient(timeout=30.0, headers=headers) as client:
+        async with httpx.AsyncClient(timeout=30.0, headers=headers, verify=False) as client:
             response = await client.get(url, params=params)
             
             if response.status_code != 200:
@@ -333,12 +354,13 @@ async def scrape_wellfound(query: str = "developer", location: str = "india", li
     url = f"https://wellfound.com/role/r/{query.replace(' ', '-')}/locations/{location}"
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "text/html",
+        **BROWSER_HEADERS,
+        "Referer": "https://wellfound.com/",
+        "Origin": "https://wellfound.com"
     }
     
     try:
-        async with httpx.AsyncClient(timeout=30.0, headers=headers, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=30.0, headers=headers, follow_redirects=True, verify=False) as client:
             response = await client.get(url)
             
             if response.status_code != 200:
@@ -401,11 +423,13 @@ async def scrape_cutshort(query: str = "developer", limit: int = 20) -> List[Dic
     params = {"search": query}
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        **BROWSER_HEADERS,
+        "Referer": "https://cutshort.io/",
+        "Origin": "https://cutshort.io"
     }
     
     try:
-        async with httpx.AsyncClient(timeout=30.0, headers=headers) as client:
+        async with httpx.AsyncClient(timeout=30.0, headers=headers, verify=False) as client:
             response = await client.get(url, params=params)
             
             if response.status_code != 200:
