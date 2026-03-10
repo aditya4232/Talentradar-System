@@ -1,6 +1,0 @@
-[2026-03-09 20:12:32] [ERROR] [database.run_migration] ❌ Migration failed: type object 'Candidate' has no attribute 'profile_hash'
-Traceback (most recent call last):
-  File "D:\Spicyepanda-24-26\ADITYA_SAIO\internship-26-scriptbees\Talentradar System\backend\migrate_to_v2.py", line 127, in run_migration
-    Candidate.profile_hash == None
-    ^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: type object 'Candidate' has no attribute 'profile_hash'. Did you mean: 'profile_url'?
