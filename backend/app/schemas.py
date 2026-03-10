@@ -19,11 +19,22 @@ class CandidateBase(BaseModel):
 class CandidateCreate(CandidateBase):
     pass
 
+class CandidateUpdate(BaseModel):
+    status: Optional[str] = None
+    notes: Optional[str] = None
+
 class Candidate(CandidateBase):
     id: int
     freshness_score: Optional[float] = 1.0
     last_updated: Optional[datetime] = None
     created_at: Optional[datetime] = None
+    view_count: Optional[int] = 0
+    applied_count: Optional[int] = 0
+    status: Optional[str] = "New"
+    notes: Optional[str] = None
+    contactability_score: Optional[float] = 0.0
+    outreach_ready: Optional[bool] = False
+    source_reliability: Optional[str] = "low"
 
     class Config:
         from_attributes = True

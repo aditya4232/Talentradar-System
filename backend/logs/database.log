@@ -1,0 +1,65 @@
+[2026-03-09 20:12:32] [INFO] [database.run_migration] 🔄 Starting database migration to v2.0...
+[2026-03-09 20:12:32] [INFO] [database.run_migration] Adding new columns...
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Added 'status' column
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Added 'contact_attempts' column
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Added 'last_contacted' column
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Added 'is_duplicate' column
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Added 'duplicate_of_id' column
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Added 'profile_hash' column
+[2026-03-09 20:12:32] [INFO] [database.run_migration] Creating indexes for performance...
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Created composite index on (location, talent_score, experience_years)
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Created index on created_at
+[2026-03-09 20:12:32] [INFO] [database.run_migration] ✅ Created index on profile_hash
+[2026-03-09 20:12:32] [INFO] [database.run_migration] Backfilling profile_hash for existing candidates...
+[2026-03-09 20:12:32] [ERROR] [database.run_migration] ❌ Migration failed: type object 'Candidate' has no attribute 'profile_hash'
+Traceback (most recent call last):
+  File "D:\Spicyepanda-24-26\ADITYA_SAIO\internship-26-scriptbees\Talentradar System\backend\migrate_to_v2.py", line 127, in run_migration
+    Candidate.profile_hash == None
+    ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'Candidate' has no attribute 'profile_hash'. Did you mean: 'profile_url'?
+[2026-03-09 20:12:59] [INFO] [database.run_migration] 🔄 Starting database migration to v2.0...
+[2026-03-09 20:12:59] [INFO] [database.run_migration] Adding new columns...
+[2026-03-09 20:12:59] [WARNING] [database.run_migration] Column 'status' may already exist: (sqlite3.OperationalError) duplicate column name: status
+[SQL: 
+                    ALTER TABLE candidates ADD COLUMN status TEXT DEFAULT 'active'
+                ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-03-09 20:12:59] [WARNING] [database.run_migration] Column 'contact_attempts' may already exist: (sqlite3.OperationalError) duplicate column name: contact_attempts
+[SQL: 
+                    ALTER TABLE candidates ADD COLUMN contact_attempts INTEGER DEFAULT 0
+                ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-03-09 20:12:59] [WARNING] [database.run_migration] Column 'last_contacted' may already exist: (sqlite3.OperationalError) duplicate column name: last_contacted
+[SQL: 
+                    ALTER TABLE candidates ADD COLUMN last_contacted TIMESTAMP NULL
+                ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-03-09 20:12:59] [WARNING] [database.run_migration] Column 'is_duplicate' may already exist: (sqlite3.OperationalError) duplicate column name: is_duplicate
+[SQL: 
+                    ALTER TABLE candidates ADD COLUMN is_duplicate BOOLEAN DEFAULT 0
+                ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-03-09 20:12:59] [WARNING] [database.run_migration] Column 'duplicate_of_id' may already exist: (sqlite3.OperationalError) duplicate column name: duplicate_of_id
+[SQL: 
+                    ALTER TABLE candidates ADD COLUMN duplicate_of_id INTEGER NULL
+                ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-03-09 20:12:59] [WARNING] [database.run_migration] Column 'profile_hash' may already exist: (sqlite3.OperationalError) duplicate column name: profile_hash
+[SQL: 
+                    ALTER TABLE candidates ADD COLUMN profile_hash TEXT NULL
+                ]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2026-03-09 20:12:59] [INFO] [database.run_migration] Creating indexes for performance...
+[2026-03-09 20:12:59] [INFO] [database.run_migration] ✅ Created composite index on (location, talent_score, experience_years)
+[2026-03-09 20:12:59] [INFO] [database.run_migration] ✅ Created index on created_at
+[2026-03-09 20:12:59] [INFO] [database.run_migration] ✅ Created index on profile_hash
+[2026-03-09 20:12:59] [INFO] [database.run_migration] Backfilling profile_hash for existing candidates...
+[2026-03-09 20:12:59] [INFO] [database.run_migration] ✅ Backfilled profile_hash for 1184 candidates
+[2026-03-09 20:12:59] [INFO] [database.run_migration] ⚠️ Note: Unique constraint on (name, source) requires manual creation in SQLite
+[2026-03-09 20:12:59] [INFO] [database.run_migration]     Run: CREATE UNIQUE INDEX IF NOT EXISTS uq_candidate_name_source ON candidates(name, source);
+[2026-03-09 20:12:59] [INFO] [database.run_migration] 🎉 Migration completed successfully!
+[2026-03-09 20:12:59] [INFO] [database.run_migration] 📊 Database is now ready for production!
+[2026-03-09 20:12:59] [INFO] [database.verify_migration] 🔍 Verifying migration...
+[2026-03-09 20:12:59] [INFO] [database.verify_migration] ✅ All columns present
+[2026-03-09 20:12:59] [INFO] [database.verify_migration] ✅ Found 3/3 indexes
+[2026-03-09 20:12:59] [INFO] [database.verify_migration] ✅ Migration verification passed!

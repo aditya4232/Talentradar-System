@@ -154,59 +154,157 @@ Respond ONLY with a raw JSON array (no markdown):
         return []
 
 
-def compute_talent_score(candidate_data: dict) -> float:
-    """Compute a TalentScore (0-100) based on profile completeness and signals."""
-    score = 0.0
+def extract_experience_from_title(title: str) -> float:
+    """Extract estimated years of experience from job title."""
+    if not title:
+        return 0.0
     
-    # Name presence (5 pts)
-    if candidate_data.get("name"):
+    title_lower = title.lower()
+    
+    # Extract explicit years from patterns like "3+ years", "5-7 years", etc.
+    import re
+    year_patterns = [
+        r'(\d+)\+?\s*(?:to|-)\s*(\d+)?\s*(?:years?|yrs?)',
+        r'(\d+)\+\s*(?:years?|yrs?)'
+    ]
+    for pattern in year_patterns:
+        match = re.search(pattern, title_lower)
+        if match:
+            return float(match.group(1))
+    
+    # Infer from seniority level
+    seniority_map = {
+        "intern": 0.0,
+        "trainee": 0.5,
+        "junior": 1.5,
+        "associate": 2.0,
+        "mid": 3.5,
+        "senior": 5.0,
+        "sr": 5.0,
+        "lead": 7.0,
+        "staff": 8.0,
+        "principal": 10.0,
+        "architect": 9.0,
+        "manager": 6.0,
+        "head": 10.0,
+        "director": 12.0,
+        "vp": 15.0,
+        "vice president": 15.0,
+        "chief": 18.0,
+        "cto": 18.0,
+        "ceo": 20.0
+    }
+    
+    for keyword, years in seniority_map.items():
+        if keyword in title_lower:
+            return years
+    
+    # Default for generic titles
+    return 2.0
+
+
+def compute_talent_score(candidate_data: dict) -> float:
+    """Compute a TalentScore (0-100) based on profile completeness and signals.
+    
+    Enhanced scoring with better weights for Data/AI Engineer roles:
+    - Skills: 30 points (most important)
+    - Experience: 20 points  
+    - Title relevance: 18 points
+    - Company quality: 12 points
+    - Profile completeness: 20 points
+    """
+    score = 0.0
+    title = candidate_data.get("current_title", "")
+    company = candidate_data.get("company", "")
+    skills = candidate_data.get("skills", []) or []
+    exp = candidate_data.get("experience_years", 0) or 0
+    
+    # === SKILLS MATCH (30 points) - MOST IMPORTANT ===
+    if skills:
+        base_skill_score = min(10 + len(skills), 22)  # 10-22 pts for having skills
+        score += base_skill_score
+        
+        # BONUS: Premium Data/AI Engineer skills (+8 points)
+        premium_skills = {
+            "python", "sql", "aws", "azure", "gcp", "spark", "hadoop", "kafka",
+            "airflow", "snowflake", "databricks", "tensorflow", "pytorch", "scikit-learn",
+            "pandas", "numpy", "docker", "kubernetes", "etl", "data warehouse",
+            "machine learning", "deep learning", "nlp", "computer vision",
+            "mlops", "data pipeline", "big data", "scala", "redshift", "bigquery"
+        }
+        skills_lower = [s.lower() for s in skills]
+        premium_count = sum(1 for s in skills_lower if any(p in s for p in premium_skills))
+        score += min(premium_count, 8)
+    else:
+        # If no skills extracted, give some base points for having a job posting
         score += 5
     
-    # Title relevance (20 pts)
-    title = candidate_data.get("current_title", "")
-    if title:
-        score += 15
-        # Senior/Lead/Principal bonus
-        if any(w in title.lower() for w in ["senior", "lead", "principal", "staff", "architect", "manager", "director"]):
+    # === EXPERIENCE (20 points) ===
+    if exp > 0:
+        # Progressive scoring: 0-2 yrs = 5 pts, 3-5 yrs = 10 pts, 6-8 yrs = 15 pts, 9+ yrs = 20 pts
+        if exp <= 2:
             score += 5
+        elif exp <= 5:
+            score += 10
+        elif exp <= 8:
+            score += 15
+        else:
+            score += 20
     
-    # Company (10 pts)
-    company = candidate_data.get("company", "")
-    if company:
-        score += 7
-        # Top company bonus
-        if any(w in company.lower() for w in ["google", "microsoft", "amazon", "meta", "apple", "flipkart", 
-                                                "razorpay", "zomato", "swiggy", "paytm", "phonepe", "cred",
-                                                "infosys", "tcs", "wipro", "hcl", "accenture"]):
+    # === TITLE RELEVANCE (18 points) ===
+    if title:
+        score += 10  # Base for having a title
+        
+        # Data/AI Engineer bonus (+5 pts)
+        target_roles = ["data engineer", "ai engineer", "machine learning", "ml engineer", 
+                       "data scientist", "mlops", "analytics engineer", "big data"]
+        if any(role in title.lower() for role in target_roles):
+            score += 5
+        
+        # Seniority bonus (+3 pts)
+        if any(w in title.lower() for w in ["senior", "lead", "principal", "staff", "architect", "manager", "director", "vp"]):
             score += 3
     
-    # Experience (15 pts)
-    exp = candidate_data.get("experience_years", 0) or 0
-    if exp > 0:
-        score += min(exp * 2, 15)
+    # === COMPANY QUALITY (12 points) ===
+    if company:
+        score += 5  # Base for having a company
+        
+        # Top tech company bonus (+7 pts)
+        top_companies = {
+            "google", "microsoft", "amazon", "meta", "apple", "netflix", "uber", "airbnb",
+            "flipkart", "razorpay", "zomato", "swiggy", "paytm", "phonepe", "cred", "zerodha",
+            "tcs", "infosys", "wipro", "hcl", "accenture", "deloitte", "cognizant",
+            "deutsche bank", "jp morgan", "goldman sachs", "morgan stanley", "citi", "hsbc",
+            "tredence", "fractal", "mu sigma", "tiger analytics"
+        }
+        if any(comp in company.lower() for comp in top_companies):
+            score += 7
     
-    # Skills (25 pts)
-    skills = candidate_data.get("skills", []) or []
-    if skills:
-        score += min(len(skills) * 3, 25)
+    # === PROFILE COMPLETENESS (20 points) ===
+    # Name (3 pts)
+    if candidate_data.get("name"):
+        score += 3
     
-    # Location (5 pts)
-    if candidate_data.get("location"):
+    # Location - Hyderabad Priority (5 pts + 2 bonus)
+    location = candidate_data.get("location", "")
+    if location:
         score += 5
+        if "hyderabad" in location.lower() or "telangana" in location.lower():
+            score += 2  # Hyderabad bonus
     
-    # Contact info (10 pts)
+    # Contact info (5 pts)
     if candidate_data.get("email"):
-        score += 5
+        score += 3
     if candidate_data.get("phone"):
-        score += 5
+        score += 2
     
-    # Profile URL (5 pts)
+    # Profile URL (3 pts)
     if candidate_data.get("profile_url"):
-        score += 5
+        score += 3
     
-    # Summary (5 pts)
+    # Summary/Description (4 pts)
     summary = candidate_data.get("summary", "")
-    if summary and len(summary) > 20:
-        score += 5
+    if summary and len(summary) > 50:
+        score += 4
     
     return min(round(score, 1), 100.0)

@@ -2,19 +2,18 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./talentradar.db"
+from .config import settings
 
-# To support PostgreSQL+pgvector in the future, we would replace this with the Postgres URL
-# e.g. "postgresql://user:password@localhost/talentradar"
+SQLALCHEMY_DATABASE_URL = settings.database_url
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-# Dependency for API endpoints
+
 def get_db():
     db = SessionLocal()
     try:
